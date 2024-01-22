@@ -3,10 +3,16 @@ import asyncio
 from discord.ext import commands
 import discord
 from utils.config import BOT_TOKEN
+from aiohttp.web import AppRunner, Application, TCPSite, RouteTableDef
+
+routes = RouteTableDef()
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=".", intents=intents)
 
+@routes.get('/healthCheck')
+async def handle(request):
+    return web.Response(text="OK")
 
 @bot.event
 async def on_ready():
@@ -47,11 +53,31 @@ async def load_extensions():
 
 
 async def main():
+    app = Application()
+    app.add_routes(routes)
+    
+    runner = AppRunner(app)
+    await runner.setup()
+    site = TCPSite(runner, '0.0.0.0', 8080)
+    await site.start()
+    
     if BOT_TOKEN is None:
         raise ValueError("Not found BOT_TOKEN")
-    async with bot:
-        await load_extensions()
-        await bot.start(BOT_TOKEN)
+
+    app['bot'] = bot
+        
+    try:
+        async with bot:
+            await load_extensions()
+            await bot.start(BOT_TOKEN)
+
+    except:
+        bot.close(),
+        raise
+
+    finally:
+        await runner.cleanup()
+
 
 
 if __name__ == "__main__":
