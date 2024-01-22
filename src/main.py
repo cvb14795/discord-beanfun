@@ -2,7 +2,7 @@ import os
 import asyncio
 from discord.ext import commands
 import discord
-from utils.config import BOT_TOKEN
+from utils.config import BOT_TOKEN, PORT
 from aiohttp.web import AppRunner, Application, TCPSite, RouteTableDef
 
 routes = RouteTableDef()
@@ -58,7 +58,7 @@ async def main():
     
     runner = AppRunner(app)
     await runner.setup()
-    site = TCPSite(runner, '0.0.0.0', 8080)
+    site = TCPSite(runner, '0.0.0.0', PORT)
     await site.start()
     
     if BOT_TOKEN is None:
