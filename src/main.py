@@ -3,7 +3,7 @@ import asyncio
 from discord.ext import commands
 import discord
 from utils.config import BOT_TOKEN, PORT
-from aiohttp.web import AppRunner, Application, TCPSite, RouteTableDef
+from aiohttp.web import AppRunner, Application, TCPSite, RouteTableDef, Response
 
 routes = RouteTableDef()
 
@@ -12,7 +12,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @routes.get('/healthCheck')
 async def handle(request):
-    return web.Response(text="OK")
+    return Response(text="OK")
 
 @bot.event
 async def on_ready():
